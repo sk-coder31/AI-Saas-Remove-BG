@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Background Remover</title>
+</head>
+<body>
+    <h2>Remove Background</h2>
+    <input type="file" id="imageInput" accept="image/*" />
+    <button onclick="removeBackground()">Remove Background</button>
+    
+    <h3>Result:</h3>
+    <img id="resultImage" style="max-width: 400px; display:none;" />
+
+    <script>
+        function removeBackground() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert("Please select an image first.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            fetch("http://localhost:8080/api/image/remove", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to remove background");
+                return response.blob();
+            })
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const resultImg = document.getElementById("resultImage");
+                resultImg.src = url;
+                resultImg.style.display = 'block';
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Something went wrong. Check console.");
+            });
+        }
+    </script>
+</body>
+</html>
